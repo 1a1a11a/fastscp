@@ -2,14 +2,17 @@
 
 fastscp uses the Internet routes from Cloudflare to quickly transfer data between two hosts. It requires at leazt one host having a public IP address.
 
-![doc/d1.gif](/doc/d1.gif)
-
-![doc/d2.gif](/doc/d2.gif)
+![doc/screens0.gif](/doc/screens0.gif)
 
 ## Mechanism: 
 1. set up a HTTP server on source or dest
 2. use Cloudflare to proxy the HTTP traffic so that traffic goes from src -> cf_edge -> cf_internal -> cf_edge -> dest, this often maximizes bandwidth due to the Cloudflare inter-connections
 3. download the files from the proxied HTTP server
+
+
+![doc/d1.gif](/doc/d1.gif)
+
+![doc/d2.gif](/doc/d2.gif)
 
 
 ## Dependency
@@ -40,7 +43,7 @@ fastscp is not designed for production. It is a tool that I use to speed up data
 * use your own cloudflare account, put your zone information in `api.sh`
 * use the `authHTTPServer.py` instead of open HTTP web server
 * use HTTPS instead of HTTP at source for encryption
-
+* use a white list of IPs in the Python web HTTP server
 
 
 
