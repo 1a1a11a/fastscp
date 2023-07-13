@@ -21,8 +21,7 @@ sudo apt-get install -yqq jq parallel wget
 ### Install
 
 ```
-sudo curl https://raw.githubusercontent.com/1a1a11a/fastscp/main/fastscp.sh -o /usr/local/bin/fastscp && sudo chmod +x /usr/local/bin/fastscp
-
+sudo curl -s https://raw.githubusercontent.com/1a1a11a/fastscp/main/fastscp.sh -o /usr/local/bin/fastscp && sudo chmod +x /usr/local/bin/fastscp
 ```
 
 ### Use

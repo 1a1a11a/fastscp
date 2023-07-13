@@ -100,7 +100,7 @@ function cleanup() {
         pkill -f "http.server ${server_port}";
     fi
 
-    if [[ -n ${ZONE_ID} && -n ${ZONE} && -n ${CLOUDFLARE_API_TOKEN} ]]; then
+    if [[ -n ${ZONE_ID:-} && -n ${ZONE:-} && -n ${CLOUDFLARE_API_TOKEN:-} ]]; then
         remove_dns || true;
     fi
 }
@@ -204,7 +204,7 @@ function get_shared_dns() {
 }
 
 
-if [[ -n ${ZONE_ID} && -n ${ZONE} && -n ${CLOUDFLARE_API_TOKEN} ]]; then
+if [[ -n ${ZONE_ID:-} && -n ${ZONE:-} && -n ${CLOUDFLARE_API_TOKEN:-} ]]; then
     # TODO: this may become a problem if two people try it at the same time
     subdomain_name=fastscp-$(date +%s)
     server_url=${subdomain_name}.${ZONE}:${server_port}
