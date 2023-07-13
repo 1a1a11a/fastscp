@@ -28,6 +28,17 @@ server_pid=0   # the pid of the web server, used to kill the server
 server_port=8880 # https://developers.cloudflare.com/fundamentals/get-started/reference/network-ports/
 parallel_download=1
 
+# parse args
+if [[ $# -lt 2 || $# -gt 3 ]]; then
+    usage
+    exit 1
+fi
+
+# skip -r
+if [[ $1 == "-r" ]]; then 
+    shift;
+fi
+
 src_path=$1
 dest_user=$(echo $2 | cut -d@ -f1)
 if [[ "${dest_user}" == "${2}" ]]; then

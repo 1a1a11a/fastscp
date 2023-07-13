@@ -2,6 +2,9 @@
 
 fastscp uses the Internet routes from Cloudflare to quickly transfer data between two hosts. It requires at leazt one host having a public IP address.
 
+![doc/d1.gif](/doc/d1.gif)
+
+![doc/d2.gif](/doc/d2.gif)
 
 ## Mechanism: 
 1. set up a HTTP server on source or dest
@@ -33,10 +36,10 @@ fastscp data ${USER}@${HOST}:/PATH/
 ## Note
 fastscp is not designed for production. It is a tool that I use to speed up data transfer from CMU and Cloudlab. Most of my data are not private, so I privacy is not a design consideration. Moreover, when open-sourcing the tool, to make it easy to use, I created a shared account on Cloudflare, which means anyone is able to see your data during the tansfer. 
 
-Do the following if you need better privacy and security
-> * use your own cloudflare account, put your zone information in `api.sh`
-> * use the `authHTTPServer.py` instead of open HTTP web server
-> * use HTTPS instead of HTTP at source for encryption
+** Do the following if you need better privacy and security **
+* use your own cloudflare account, put your zone information in `api.sh`
+* use the `authHTTPServer.py` instead of open HTTP web server
+* use HTTPS instead of HTTP at source for encryption
 
 
 
