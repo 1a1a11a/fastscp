@@ -1,0 +1,15 @@
+name = "fastscp"
+main = "src/worker.ts"
+compatibility_date = "2023-05-15"
+
+# Cron Triggers
+# Docs: https://developers.cloudflare.com/workers/platform/triggers/cron-triggers/
+# Configuration: https://developers.cloudflare.com/workers/wrangler/configuration/#triggers
+# [triggers]
+# crons = ["* * * * *"] # * * * * * = run every minute
+
+# routes = [
+# 	{ pattern = "api.fastscp.com/*", zone_name = "fastscp.com" }
+# ]
+
+
