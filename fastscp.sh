@@ -14,7 +14,7 @@ set -eu
 
 
 # load config
-source ./api.sh
+if [ -f ./api.sh ]; then source ./api.sh; fi
 # load private config if exists
 if [ -f ./priv/api.sh ]; then source ./priv/api.sh; fi
 
