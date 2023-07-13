@@ -3,7 +3,6 @@ import {
   error,       // creates error responses
   json,        // creates JSON responses
   Router,      // the ~440 byte router itself
-  withParams,  // middleware: puts params directly on the Request
 } from 'itty-router'
 
 // Create a new router
@@ -13,7 +12,7 @@ const router = Router();
 export interface Env {
   CF_API_TOKEN: string;
   CF_API_ZONE: string;
-  // MY_KV_NAMESPACE: KVNamespace;
+  test: KVNamespace;
   // MY_DURABLE_OBJECT: DurableObjectNamespace;
   // MY_BUCKET: R2Bucket;
   // MY_SERVICE: Fetcher;
@@ -81,7 +80,7 @@ async function registerIP(ip: string, zone_id: string, zone_token: string) {
   }
 
   try {
-    const subdomain_name = "test-" + timestampInSeconds.toString();
+    const subdomain_name = "fast-" + timestampInSeconds.toString();
     data["name"] = subdomain_name;
 
     const response = await fetch("https://api.cloudflare.com/client/v4/zones/" +
@@ -120,6 +119,14 @@ async function registerIP(ip: string, zone_id: string, zone_token: string) {
 }
 
 router.get('/', (req: Request, env: Env, ctx: ExecutionContext) => {
+  // console.log(env.test)
+  // env.test.get("visitor_count").then((value) => {
+  //   let c = 0;
+  //   if (value != null) { c = parseInt(value) + 1; }
+  //   env.test.put("visitor_count", (c + 1).toString());
+  // });
+
+
   return new Response(
     'Hello, world! This is the root page of your Worker template. ' +
     env.CF_API_ZONE);

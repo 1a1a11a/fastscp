@@ -13,3 +13,19 @@ compatibility_date = "2023-05-15"
 # ]
 
 
+kv_namespaces = [
+    { binding = "test", id = "d88b5fdda05d46e3bf46f81dacffb809"}
+]
+
+[env.staging]
+kv_namespaces = [
+    { binding = "test", id = "d88b5fdda05d46e3bf46f81dacffb809"}
+]
+
+[env.production]
+kv_namespaces = [
+    { binding = "test", id = "d88b5fdda05d46e3bf46f81dacffb809"}
+]
+
+
+

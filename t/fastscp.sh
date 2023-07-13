@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -eu
-# set -x
+set -x
 
 # dependency
 # jq, python3, parallel, wget, curl
@@ -89,6 +89,7 @@ function cleanup() {
     # when killing the python webserver, we will trigger ERR and 
     # enter cleanup more than once
     has_cleanup=1
+    log_info "clean up"
 
     if [[ ${server_pid} != 0 ]]; then 
         log_info stop server pid ${server_pid};
@@ -114,7 +115,7 @@ if [[ ${server} == "src" ]]; then
     # setup a HTTP server locally
     pkill -f "http.server ${server_port}" 2> /dev/null || true;
     cd ${src_path};
-    python3 -m http.server ${server_port} --bind 0.0.0.0 2>/dev/null &
+    python3 -m http.server ${server_port} --bind 0.0.0.0 &
     server_pid=$!
 
     still_running=$(sleep 2; ps -ef | grep ${server_pid} | grep -v grep | wc -l)
@@ -191,9 +192,9 @@ function remove_dns() {
 
 # get a fastscp url pointing to the ip address
 function get_shared_dns() {
-    r=$(curl --request GET --url https://api2.fastscp.com/register?ip=${src_ip} --silent)
+    r=$(curl --request GET --url https://api.fastscp.com/register?ip=${src_ip} --silent)
     if [[ "$r" == *".fastscp.com" ]]; then
-        server_url="${r}:${server_port}"
+        server_url=${r}
         log_info "shared server url ${server_url}";
     else
         log_error "failed to get shared server url ${r}";
@@ -219,13 +220,11 @@ echo '#########################################'
 
 
 filename="task_$(date +%s)"
-for f in $(find . -type f); do
+for f in $(find ./ -type f); do
     echo wget -q http://${server_url}/${f:2} -O ${f:2} >> /tmp/${filename}.wget;
     echo "mkdir -p $(dirname ${f:2})" >> /tmp/${filename}.mkdir;
 done
-echo '#!/bin/bash' > /tmp/${filename};
-echo 'set -eux' >> /tmp/${filename};
-sort /tmp/${filename}.mkdir | uniq >> /tmp/${filename};
+sort /tmp/${filename}.mkdir | uniq > /tmp/${filename};
 sort /tmp/${filename}.wget | uniq >> /tmp/${filename};
 
 scp /tmp/${filename} ${dest_user}@${dest}:/tmp/${filename} >> /tmp/fastscp.log;
@@ -239,9 +238,7 @@ if [[ ${parallel_download} -le 1 ]]; then
     ssh ${dest_user}@${dest} """
         mkdir -p ${dest_path} 2>/dev/null; 
         mv /tmp/${filename} ${dest_path}; 
-        cd ${dest_path}; 
-        bash ${filename};
-        rm ${filename};
+        cd ${dest_path}; bash ${filename}
     """;
 else
     ssh ${dest_user}@${dest} """
@@ -253,11 +250,6 @@ else
     """;
 fi
 
-# sleep 1200;
 cleanup;
-
-echo '######################################'
-echo "all transfers have finished successfully, files and bytes are transferred"
-echo '######################################'
 
 
