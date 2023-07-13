@@ -12,8 +12,11 @@ set -eu
 # 2. set your own HTTP server password
 # 3. use HTTPS
 
+
+# load config
+source ./api.sh
 # load private config if exists
-# if [ -f .api.sh ]; then source .api.sh; fi
+if [ -f ./priv/api.sh ]; then source ./priv/api.sh; fi
 
 
 SRC_PATH=$(dirname $(readlink -f $0))
@@ -97,7 +100,7 @@ function cleanup() {
         pkill -f "http.server ${server_port}";
     fi
 
-    if [[ -n ${ZONE_ID:-} && -n ${ZONE:-} && -n ${CLOUDFLARE_API_TOKEN:-} ]]; then
+    if [[ -n ${ZONE_ID} && -n ${ZONE} && -n ${CLOUDFLARE_API_TOKEN} ]]; then
         remove_dns || true;
     fi
 }
@@ -201,7 +204,7 @@ function get_shared_dns() {
 }
 
 
-if [[ -n ${ZONE_ID:-} && -n ${ZONE:-} && -n ${CLOUDFLARE_API_TOKEN:-} ]]; then
+if [[ -n ${ZONE_ID} && -n ${ZONE} && -n ${CLOUDFLARE_API_TOKEN} ]]; then
     # TODO: this may become a problem if two people try it at the same time
     subdomain_name=fastscp-$(date +%s)
     server_url=${subdomain_name}.${ZONE}:${server_port}

@@ -2,7 +2,10 @@
 set -eu
 # set -x
 
-if [ -f .api.sh ]; then source .api.sh; fi
+
+source ./api.sh
+if [ -f ./priv/api.sh ]; then source ./priv/api.sh; fi
+
 
 function remove_all_dns_entries() {
     # get all dns entries
@@ -28,4 +31,7 @@ function remove_all_dns_entries() {
     done
 }
 
+
 remove_all_dns_entries;
+
+
