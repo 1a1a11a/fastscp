@@ -28,6 +28,39 @@ server_pid=0   # the pid of the web server, used to kill the server
 server_port=8880 # https://developers.cloudflare.com/fundamentals/get-started/reference/network-ports/
 parallel_download=1
 
+
+function usage() {
+    echo "example: bash $0 ./ user@remote:/path/to/dest/"
+}
+
+function log() {
+    echo $@;
+    echo $(date) $@ >> /tmp/fastscp.log
+}
+
+function log_info() {
+    log "$@"
+}
+
+function log_debug() {
+    if [[ ${verbose} == 1 ]]; then
+        log "$@"
+    fi
+}
+
+function log_warn() {
+    log $@
+}
+
+function log_error() {
+    log $@
+    exit 1
+}
+
+
+
+
+
 # parse args
 if [[ $# -lt 2 || $# -gt 3 ]]; then
     usage
@@ -66,34 +99,6 @@ while [ $# -gt 0 ]; do
 done
 
 
-
-function usage() {
-    echo "example: bash $0 ./ user@remote:/path/to/dest/"
-}
-
-function log() {
-    echo $@;
-    echo $(date) $@ >> /tmp/fastscp.log
-}
-
-function log_info() {
-    log "$@"
-}
-
-function log_debug() {
-    if [[ ${verbose} == 1 ]]; then
-        log "$@"
-    fi
-}
-
-function log_warn() {
-    log $@
-}
-
-function log_error() {
-    log $@
-    exit 1
-}
 
 function cleanup() {
     if [[ ${has_cleanup} == 1 ]]; then
