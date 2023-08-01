@@ -272,11 +272,12 @@ else
     """;
 fi
 
-# sleep 1200;
-cleanup;
 
 echo '######################################'
 echo "all transfers have finished successfully, files and bytes are transferred"
 echo '######################################'
+
+# sleep 1200;
+cleanup;
 
 
