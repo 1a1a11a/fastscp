@@ -73,6 +73,11 @@ if [[ $1 == "-r" ]]; then
 fi
 
 src_path=$1
+if [[ ! -f ${src_path} && ! -d ${src_path} ]]; then
+    log_error "please specify the source file or directory"
+    exit
+fi
+
 dest_user=$(echo $2 | cut -d@ -f1)
 if [[ "${dest_user}" == "${2}" ]]; then
     log_error "please specify the dest user, e.g. user@remote:/path/to/dest/"
@@ -84,7 +89,7 @@ shift;shift;
 
 while [ $# -gt 0 ]; do
     case $1 in
-        -w | --server )           shift
+        -s | --server )           shift
             server=$1
         ;;
         -v | --verbose )    verbose=1
@@ -132,7 +137,11 @@ if [[ ${server} == "src" ]]; then
 
     # setup a HTTP server locally
     pkill -f "http.server ${server_port}" 2> /dev/null || true;
-    cd ${src_path};
+    if [ -f ${src_path} ]; then
+    cd $(dirname ${src_path});
+    else
+        cd ${src_path};
+    fi
     python3 -m http.server ${server_port} --bind 0.0.0.0 2>/dev/null &
     server_pid=$!
 
@@ -237,39 +246,51 @@ echo "server ip ${server_ip}, server url ${server_url}, python web server pid ${
 echo '#########################################'
 
 
-filename="task_$(date +%s)"
-for f in $(find . -type f); do
-    echo wget -q http://${server_url}/${f:2} -O ${f:2} >> /tmp/${filename}.wget;
-    echo "mkdir -p $(dirname ${f:2})" >> /tmp/${filename}.mkdir;
-done
-echo '#!/bin/bash' > /tmp/${filename};
-echo 'set -eux' >> /tmp/${filename};
-sort /tmp/${filename}.mkdir | uniq >> /tmp/${filename};
-sort /tmp/${filename}.wget | uniq >> /tmp/${filename};
+if [[ -d ${src_path} ]]; then
+    filename="task_$(date +%s)"
+    for f in $(find . -type f); do
+        echo wget -q http://${server_url}/${f:2} -O ${f:2} >> /tmp/${filename}.wget;
+        echo "mkdir -p $(dirname ${f:2})" >> /tmp/${filename}.mkdir;
+    done
+    echo '#!/bin/bash' > /tmp/${filename};
+    echo 'set -eux' >> /tmp/${filename};
+    sort /tmp/${filename}.mkdir | uniq >> /tmp/${filename};
+    sort /tmp/${filename}.wget | uniq >> /tmp/${filename};
 
-scp /tmp/${filename} ${dest_user}@${dest}:/tmp/${filename} >> /tmp/fastscp.log;
-rm /tmp/${filename} /tmp/${filename}.*;
+    scp /tmp/${filename} ${dest_user}@${dest}:/tmp/${filename} >> /tmp/fastscp.log;
+    rm /tmp/${filename} /tmp/${filename}.*;
+fi
 
-# download files on dest
 # TODO: change to wait till DNS is ready
 log_info "wait 2 seconds for DNS to be ready..."
 sleep 2;
-if [[ ${parallel_download} -le 1 ]]; then
+
+# download files on dest
+if [[ -f ${src_path} ]]; then
+    fn=$(basename ${src_path});
     ssh ${dest_user}@${dest} """
         mkdir -p ${dest_path} 2>/dev/null; 
-        mv /tmp/${filename} ${dest_path}; 
-        cd ${dest_path}; 
-        bash ${filename};
-        rm ${filename};
+        cd ${dest_path};
+        wget -q http://${server_url}/${fn} -O ${fn};
     """;
 else
-    ssh ${dest_user}@${dest} """
-        mkdir -p ${dest_path} 2>/dev/null; 
-        mv /tmp/${filename} ${dest_path}; 
-        cd ${dest_path}; 
-        parallel -j${parallel_download} < ${filename}; 
-        rm ${filename};
-    """;
+    if [[ ${parallel_download} -le 1 ]]; then
+        ssh ${dest_user}@${dest} """
+            mkdir -p ${dest_path} 2>/dev/null; 
+            mv /tmp/${filename} ${dest_path}; 
+            cd ${dest_path}; 
+            bash ${filename};
+            rm ${filename};
+        """;
+    else
+        ssh ${dest_user}@${dest} """
+            mkdir -p ${dest_path} 2>/dev/null; 
+            mv /tmp/${filename} ${dest_path}; 
+            cd ${dest_path}; 
+            parallel -j${parallel_download} < ${filename}; 
+            rm ${filename};
+        """;
+    fi
 fi
 
 
@@ -279,5 +300,4 @@ echo '######################################'
 
 # sleep 1200;
 cleanup;
-
 
